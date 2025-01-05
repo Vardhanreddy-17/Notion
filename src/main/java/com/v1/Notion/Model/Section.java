@@ -1,10 +1,13 @@
 package com.v1.Notion.Model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Data
@@ -17,13 +20,13 @@ public class Section {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 100)
-    private String title;
+    @Column(name = "section_name", nullable = false)
+    private String sectionName;
 
-    @Column(columnDefinition = "TEXT")
-    private String content;
+    @OneToMany(mappedBy = "section", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SubSection> subSections = new ArrayList<>();
 
     @ManyToOne
-    @JoinColumn(name = "course_id", nullable = false) // Foreign key column in the Section table
-    private Course course; // This matches the "mappedBy" in the Course entity
+    @JoinColumn(name = "course_id", nullable = false)
+    private Course course; // Add this field to map the relationship
 }

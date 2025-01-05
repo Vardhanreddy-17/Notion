@@ -26,4 +26,8 @@ public class SubSection {
 
     @Column(nullable = false)
     private String videoUrl;
+
+    @ManyToOne
+    @JoinColumn(name = "section_id", nullable = false)
+    private Section section;
 }
