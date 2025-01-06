@@ -13,4 +13,6 @@ public interface OTPRepository extends JpaRepository<OTP, Long>{
 	Optional<OTP> findOTP(@Param("otp") String otp);
 	@Query("Select o from OTP o where o.email = :email")
 	Optional<OTP> findEmail(@Param("email") String email);
+	
+	Optional<OTP> findTopByEmailOrderByCreatedAtDesc(String email);
 }

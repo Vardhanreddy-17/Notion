@@ -7,7 +7,7 @@ public class SignUpRequest {
     private String email;
     private String password;
     private String confirmPassword;
-    private AccountType accountType;
+    private String accountType;
     private String contactNumber;
     private String otp;
 
@@ -52,11 +52,11 @@ public class SignUpRequest {
         this.confirmPassword = confirmPassword;
     }
 
-    public AccountType getAccountType() {
+    public String getAccountType() {
         return accountType;
     }
 
-    public void setAccountType(AccountType accountType) {
+    public void setAccountType(String accountType) {
         this.accountType = accountType;
     }
 

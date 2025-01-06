@@ -1,19 +1,10 @@
 package com.v1.Notion.Model;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class Section {
 
     @Id
@@ -28,5 +19,39 @@ public class Section {
 
     @ManyToOne
     @JoinColumn(name = "course_id", nullable = false)
-    private Course course; // Add this field to map the relationship
+    private Course course;
+
+    // Getters and Setters
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getSectionName() {
+        return sectionName;
+    }
+
+    public void setSectionName(String sectionName) {
+        this.sectionName = sectionName;
+    }
+
+    public List<SubSection> getSubSections() {
+        return subSections;
+    }
+
+    public void setSubSections(List<SubSection> subSections) {
+        this.subSections = subSections;
+    }
+
+    public Course getCourse() {
+        return course;
+    }
+
+    public void setCourse(Course course) {
+        this.course = course;
+    }
 }

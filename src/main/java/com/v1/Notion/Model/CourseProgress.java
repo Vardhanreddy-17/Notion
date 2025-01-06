@@ -1,18 +1,9 @@
 package com.v1.Notion.Model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.util.List;
 
 @Entity
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class CourseProgress {
 
     @Id
@@ -30,4 +21,30 @@ public class CourseProgress {
         inverseJoinColumns = @JoinColumn(name = "sub_section_id")
     )
     private List<SubSection> completedVideos;
+
+    // Getters and Setters
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Course getCourse() {
+        return course;
+    }
+
+    public void setCourse(Course course) {
+        this.course = course;
+    }
+
+    public List<SubSection> getCompletedVideos() {
+        return completedVideos;
+    }
+
+    public void setCompletedVideos(List<SubSection> completedVideos) {
+        this.completedVideos = completedVideos;
+    }
 }

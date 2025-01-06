@@ -1,20 +1,11 @@
 package com.v1.Notion.Model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class Course {
 
     @Id
@@ -36,7 +27,6 @@ public class Course {
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Section> courseContent;
-
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
     private List<RatingAndReview> ratingAndReview = new ArrayList<>();
@@ -61,4 +51,94 @@ public class Course {
         inverseJoinColumns = @JoinColumn(name = "student_id")
     )
     private List<User> studentEnrolled;
+
+    // Getters and Setters
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getCourseName() {
+        return courseName;
+    }
+
+    public void setCourseName(String courseName) {
+        this.courseName = courseName;
+    }
+
+    public String getCourseDescription() {
+        return courseDescription;
+    }
+
+    public void setCourseDescription(String courseDescription) {
+        this.courseDescription = courseDescription;
+    }
+
+    public User getInstructor() {
+        return instructor;
+    }
+
+    public void setInstructor(User instructor) {
+        this.instructor = instructor;
+    }
+
+    public String getWhatWillYouLearn() {
+        return whatWillYouLearn;
+    }
+
+    public void setWhatWillYouLearn(String whatWillYouLearn) {
+        this.whatWillYouLearn = whatWillYouLearn;
+    }
+
+    public List<Section> getCourseContent() {
+        return courseContent;
+    }
+
+    public void setCourseContent(List<Section> courseContent) {
+        this.courseContent = courseContent;
+    }
+
+    public List<RatingAndReview> getRatingAndReview() {
+        return ratingAndReview;
+    }
+
+    public void setRatingAndReview(List<RatingAndReview> ratingAndReview) {
+        this.ratingAndReview = ratingAndReview;
+    }
+
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public void setPrice(BigDecimal price) {
+        this.price = price;
+    }
+
+    public String getThumbnail() {
+        return thumbnail;
+    }
+
+    public void setThumbnail(String thumbnail) {
+        this.thumbnail = thumbnail;
+    }
+
+    public List<Tags> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<Tags> tags) {
+        this.tags = tags;
+    }
+
+    public List<User> getStudentEnrolled() {
+        return studentEnrolled;
+    }
+
+    public void setStudentEnrolled(List<User> studentEnrolled) {
+        this.studentEnrolled = studentEnrolled;
+    }
 }
