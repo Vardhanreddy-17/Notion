@@ -10,12 +10,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.v1.Notion.Service.OTPService;
+import com.v1.Notion.Service.UserService;
 
 @RestController
 @RequestMapping("/api/auth")
 public class Auth {
 	@Autowired
 	private OTPService otpService;
+	@Autowired
+	private UserService userService;
 	@GetMapping("/sendOTP")
 	public ResponseEntity<?> sendOTP(@RequestBody Map<String,String> requestBody){
 		try {
@@ -31,4 +34,5 @@ public class Auth {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("success", false, "message", ex.getMessage()));
         }
 	}
+	
 }
