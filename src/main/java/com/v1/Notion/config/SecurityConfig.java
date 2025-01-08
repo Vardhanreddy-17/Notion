@@ -1,26 +1,21 @@
 //package com.v1.Notion.config;
 //
-//import org.springframework.context.annotation.Bean;
 //import org.springframework.context.annotation.Configuration;
-//import org.springframework.security.crypto.password.PasswordEncoder;
+//import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+//import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+//import org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration;
 //
 //@Configuration
-//public class SecurityConfig {
-//
-//    @Bean
-//    public PasswordEncoder passwordEncoder() {
-//        return new PasswordEncoder() {
-//            @Override
-//            public String encode(CharSequence rawPassword) {
-//                // Implement custom password encoding logic
-//                return rawPassword.toString();  // Example: No encoding, just return the password as is
-//            }
-//
-//            @Override
-//            public boolean matches(CharSequence rawPassword, String encodedPassword) {
-//                // Implement custom password matching logic
-//                return rawPassword.toString().equals(encodedPassword);  // Example: Check if raw password matches the encoded password
-//            }
-//        };
+//@EnableWebSecurity
+//public class SecurityConfig extends WebSecurityConfiguration {
+//    @Override
+//    protected void configure(HttpSecurity http) throws Exception {
+//        http
+//            .authorizeRequests()
+//            .antMatchers("/api/auth/sendOTP", "/api/auth/signup").permitAll() // Allow unauthenticated access to these endpoints
+//            .anyRequest().authenticated() // Require authentication for all other requests
+//            .and()
+//            .addFilter(new JwtAuthenticationFilter()) // Add the JWT filter for subsequent requests
+//            .csrf().disable(); // Disable CSRF for stateless authentication
 //    }
 //}

@@ -1,6 +1,7 @@
 package com.v1.Notion.Service;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
@@ -9,6 +10,8 @@ import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 import com.v1.Notion.Model.OTP;
@@ -28,18 +31,20 @@ public class OTPServiceImpl implements OTPService{
 	@Autowired
 	private OTPRepository otpRepository;
 	
-	 @Value("${spring.mail.host}")
-	    private String mailHost;
+//	 @Value("${spring.mail.host}")
+//	    private String mailHost;
+//	    
+//	    @Value("${spring.mail.port}")
+//	    private int mailPort;
+//	    
+//	    @Value("${spring.mail.username}")
+//	    private String mailUsername;
+//	    
+//	    @Value("${spring.mail.password}")
+//	    private String mailPassword;
 	    
-	    @Value("${spring.mail.port}")
-	    private int mailPort;
-	    
-	    @Value("${spring.mail.username}")
-	    private String mailUsername;
-	    
-	    @Value("${spring.mail.password}")
-	    private String mailPassword;
-	    
+	    @Autowired
+	    private JavaMailSender javaMailSender;
 	    
 	public String otpGenerate() {
 		return String.valueOf(new Random().nextInt(900000) + 100000);
@@ -62,43 +67,29 @@ public class OTPServiceImpl implements OTPService{
         try {
             sendWelcomeEmail(email,otp);
         } catch (Exception e) {
-            return email.toString();
+            return e.toString();
         }
         return otp;
 	}
-	private void sendWelcomeEmail(String toEmail,String otp) throws MessagingException, IOException {
-        // Read the email template from the file system
-        String emailContent = new String(Files.readAllBytes(Paths.get("")));
+	public void sendWelcomeEmail(String toEmail, String otp) throws MessagingException, IOException, URISyntaxException {
+        // Read the HTML template from the file system
+		String emailContent = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader().getResource("templates/Verificationmail.html").toURI())));
+
 
         // Replace placeholders with dynamic data
         emailContent = emailContent.replace("{{email}}", toEmail)
                                    .replace("{{otp}}", otp);
 
-        // Email properties
-        Properties properties = new Properties();
-        properties.put("mail.smtp.auth", "true");
-        properties.put("mail.smtp.starttls.enable", "true");
-        properties.put("mail.smtp.host", mailHost);
-        properties.put("mail.smtp.port", mailPort);
+        // Create a MimeMessage
+        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
 
-        // Create a session with authentication
-        Session session = Session.getInstance(properties, new Authenticator() {
-            @Override
-            protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(mailUsername, mailPassword);
-            }
-        });
-
-        // Construct the email message
-        MimeMessage message = new MimeMessage(session);
-        message.setFrom(new InternetAddress(mailUsername));
-        message.addRecipient(Message.RecipientType.TO, new InternetAddress(toEmail));
-        message.setSubject("Your OTP for Study Notion Verification");
-
-        // Set the content of the message as HTML
-        message.setContent(emailContent, "text/html");
+        // Set email properties
+        helper.setTo(toEmail);
+        helper.setSubject("Your OTP for Study Notion Verification");
+        helper.setText(emailContent, true); // Mark the content as HTML
 
         // Send the email
-        Transport.send(message);
+        javaMailSender.send(mimeMessage);
     }
 }
