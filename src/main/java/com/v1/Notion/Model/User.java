@@ -31,7 +31,7 @@ public class User {
     private Boolean active = true;
 
     @Column(nullable = false)
-    private Boolean approved = true;
+    private Boolean approved = false;
 
     @OneToOne
     @JoinColumn(name = "profile_id", nullable = false)

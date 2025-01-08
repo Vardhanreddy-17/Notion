@@ -1,5 +1,6 @@
 package com.v1.Notion.Service;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,21 +31,6 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private ProfileRepository profileRepository;
     
-//    @Autowired
-//    private JavaMailSender mailsender;
-    
-    @Value("${spring.mail.host}")
-    private String mailHost;
-    
-    @Value("${spring.mail.port}")
-    private int port;
-    
-    @Value("${spring.mail.username}")
-    private String mailUsername;
-    
-    @Value("${spring.mail.password}")
-    private String mailPassword;
-    
     // @Autowired
     // private PasswordEncoder passwordEncoder;
 
@@ -57,11 +43,10 @@ public class UserServiceImpl implements UserService {
         String email = signUpRequest.getEmail();
         String accountTypeString = signUpRequest.getAccountType();
         String contactnumber = signUpRequest.getContactNumber();
-        String otp = signUpRequest.getOtp();
         
         // Validate required fields
         if(firstName == null || lastName == null || password == null || confirmpassword == null ||
-           email == null || contactnumber == null || otp == null) {
+           email == null || contactnumber == null) {
             return new ApiResponse(false, "All fields are required.", null);
         }
         
@@ -71,16 +56,20 @@ public class UserServiceImpl implements UserService {
         }
         
         // Check if user already exists
-        if(userRepository.findByEmail(email).isPresent()) {
-            return new ApiResponse(false, "User already exists. Please sign in to continue.", null);
+        Optional<User> existingUser = userRepository.findByEmail(email);
+        if (existingUser.isPresent()) {
+            User user = existingUser.get();
+
+            // If user exists but is not approved, delete them and allow re-registration
+            if (!user.getApproved()) {
+                userRepository.delete(user);
+            } else {
+                // If user is approved, block registration
+                return new ApiResponse(false, "User already exists. Please sign in to continue.", null);
+            }
         }
         
-        // Verify OTP
-        Optional<OTP> latestotp = otpRepository.findTopByEmailOrderByCreatedAtDesc(email);
-        if(latestotp.isEmpty() || !latestotp.get().getOtp().equals(otp)) {
-            return new ApiResponse(false, "Invalid or Expired OTP", null);
-        }
-        
+
         // Set Account Type
         AccountType accountType;
         try {
@@ -90,7 +79,7 @@ public class UserServiceImpl implements UserService {
         }
         
         // Set approval status based on account type
-        boolean approved = accountType != AccountType.INSTRUCTOR;
+        boolean active = accountType != AccountType.INSTRUCTOR;
         
         // Create a profile
         Profile profile = new Profile();
@@ -107,10 +96,10 @@ public class UserServiceImpl implements UserService {
         user.setEmail(email);
         user.setPassword(password); // You can add password encoding here
         user.setAccountType(accountType);
-        user.setApproved(approved);
+        user.setApproved(false);
         user.setAdditionalDetails(profile);
         user.setImage("https://api.dicebear.com/6.x/initials/svg?seed=" + firstName + "%20" + lastName);
-        
+        user.setActive(active);
         userRepository.save(user);
         
         // Prepare the response DTO
@@ -124,4 +113,39 @@ public class UserServiceImpl implements UserService {
         );
         return new ApiResponse(true, "User registered successfully", userResponseDTO);
     }
+    
+    @Override
+    public ApiResponse verifyOTP(String email, String enteredOtp) {
+        // Fetch the most recent OTP record for the given email
+        Optional<OTP> latestOtp = otpRepository.findTopByEmailOrderByCreatedAtDesc(email);
+
+        if (latestOtp.isEmpty()) {
+            return new ApiResponse(false, "OTP not found. Please request a new OTP.", null);
+        }
+
+        OTP otpEntity = latestOtp.get();
+        
+        // Check if OTP has expired
+        if (otpEntity.getExpiresAt().isBefore(LocalDateTime.now())) {
+            return new ApiResponse(false, "OTP has expired. Please request a new OTP.", null);
+        }
+
+        // Validate OTP
+        if (!otpEntity.getOtp().equals(enteredOtp)) {
+            return new ApiResponse(false, "Invalid OTP. Please try again.", null);
+        }
+
+        // OTP is valid, update the user's approval status
+        Optional<User> userOptional = userRepository.findByEmail(email);
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            user.setApproved(true);  // Mark the user as approved
+            userRepository.save(user); // Save the updated user details
+        } else {
+            return new ApiResponse(false, "User not found.", null);
+        }
+
+        return new ApiResponse(true, "OTP verified successfully. Your account is now approved.", null);
+    }
+
 }
