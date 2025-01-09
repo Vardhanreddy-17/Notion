@@ -140,7 +140,7 @@ public class UserServiceImpl implements UserService {
         if (userOptional.isPresent()) {
             User user = userOptional.get();
             user.setApproved(true);  // Mark the user as approved
-            userRepository.save(user); // Save the updated user details
+            userRepository.save(user); // Save the updated user details of 
         } else {
             return new ApiResponse(false, "User not found.", null);
         }

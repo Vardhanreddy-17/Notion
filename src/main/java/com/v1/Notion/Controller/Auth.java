@@ -53,4 +53,11 @@ public class Auth {
 		}
 	}
 	
+	@PostMapping("/verifyOtp")
+	public ResponseEntity<?> verifyOtp(@RequestBody String otp){
+		try {
+			ApiResponse response = userService.verifyOTP(email, otp)
+		}
+	}
+	
 }
