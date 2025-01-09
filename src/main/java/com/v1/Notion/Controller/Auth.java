@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.v1.Notion.DTO.SignUpRequest;
@@ -53,10 +55,17 @@ public class Auth {
 		}
 	}
 	
-	@PostMapping("/verifyOtp")
-	public ResponseEntity<?> verifyOtp(@RequestBody String otp){
+	@RequestMapping(value="/verifyOtp",method = RequestMethod.GET)
+	public ResponseEntity<?> verifyOtp(@RequestParam String email,@RequestParam String otp){
 		try {
-			ApiResponse response = userService.verifyOTP(email, otp)
+			ApiResponse response = userService.verifyOTP(email,otp);
+			return ResponseEntity.ok(response);
+		}catch(IllegalArgumentException ex){
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse(false, ex.getMessage()));
+		}catch(Exception ex) {
+			 ex.printStackTrace();
+	            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+	                    .body(new ApiResponse(false, "OTP is not verified. Please try again."));
 		}
 	}
 	

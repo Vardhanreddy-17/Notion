@@ -18,6 +18,7 @@ import com.v1.Notion.Repository.UserRepository;
 import com.v1.Notion.DTO.SignUpRequest;
 import com.v1.Notion.DTO.UserResponseDTO;
 import com.v1.Notion.config.ApiResponse;
+import com.v1.Notion.Utility.*;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -30,6 +31,9 @@ public class UserServiceImpl implements UserService {
     
     @Autowired
     private ProfileRepository profileRepository;
+    
+    @Autowired
+    private JwtUtility jwtUtility;
     
     // @Autowired
     // private PasswordEncoder passwordEncoder;
@@ -89,6 +93,7 @@ public class UserServiceImpl implements UserService {
         profile.setDateOfBirth(null);
         profileRepository.save(profile);
         
+        String jwtToken = jwtUtility.GenerateToken(email);
         // Create a new user
         User user = new User();
         user.setFirstName(firstName);
@@ -100,6 +105,7 @@ public class UserServiceImpl implements UserService {
         user.setAdditionalDetails(profile);
         user.setImage("https://api.dicebear.com/6.x/initials/svg?seed=" + firstName + "%20" + lastName);
         user.setActive(active);
+        user.setToken(jwtToken);
         userRepository.save(user);
         
         // Prepare the response DTO
@@ -109,43 +115,51 @@ public class UserServiceImpl implements UserService {
             user.getEmail(),
             user.getAccountType().toString(),
             user.getApproved(),
-            user.getImage()
+            user.getImage(),
+            user.getToken()
         );
         return new ApiResponse(true, "User registered successfully", userResponseDTO);
     }
     
     @Override
     public ApiResponse verifyOTP(String email, String enteredOtp) {
-        // Fetch the most recent OTP record for the given email
+        // Fetch the most recent OTP record for the given OTP value
         Optional<OTP> latestOtp = otpRepository.findTopByEmailOrderByCreatedAtDesc(email);
-
+        		
         if (latestOtp.isEmpty()) {
-            return new ApiResponse(false, "OTP not found. Please request a new OTP.", null);
+            return new ApiResponse(false, "Invalid OTP. Please try again.", null);
         }
 
         OTP otpEntity = latestOtp.get();
-        
+
+        // Extract email from OTP entity
+        String storedEmail = otpEntity.getEmail();  // This is the email associated with the OTP
+
         // Check if OTP has expired
         if (otpEntity.getExpiresAt().isBefore(LocalDateTime.now())) {
             return new ApiResponse(false, "OTP has expired. Please request a new OTP.", null);
         }
 
-        // Validate OTP
-        if (!otpEntity.getOtp().equals(enteredOtp)) {
-            return new ApiResponse(false, "Invalid OTP. Please try again.", null);
+        // Ensure the provided email matches the one associated with the OTP
+        if (!storedEmail.equals(email)) {
+            return new ApiResponse(false, "Email does not match the OTP record.", null);
         }
 
         // OTP is valid, update the user's approval status
-        Optional<User> userOptional = userRepository.findByEmail(email);
+        Optional<User> userOptional = userRepository.findByEmail(storedEmail);
         if (userOptional.isPresent()) {
             User user = userOptional.get();
             user.setApproved(true);  // Mark the user as approved
-            userRepository.save(user); // Save the updated user details of 
+            userRepository.save(user); // Save the updated user details
+
+            // Generate JWT token
+            String jwtToken = jwtUtility.GenerateToken(user.getEmail());
+
+            // Prepare response with the token
+            return new ApiResponse(true, "OTP verified successfully. Your account is now approved.", jwtToken);
         } else {
             return new ApiResponse(false, "User not found.", null);
         }
-
-        return new ApiResponse(true, "OTP verified successfully. Your account is now approved.", null);
     }
 
 }

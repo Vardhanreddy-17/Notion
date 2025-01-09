@@ -5,5 +5,5 @@ import com.v1.Notion.config.ApiResponse;
 import com.v1.Notion.DTO.*;
 public interface UserService {
 	ApiResponse signUp(SignUpRequest signUpRequest);
-	public ApiResponse verifyOTP(String email, String enteredOtp);
+	public ApiResponse verifyOTP(String email,String enteredOtp);
 }

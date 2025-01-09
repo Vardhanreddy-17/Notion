@@ -7,6 +7,15 @@ public class UserResponseDTO {
     private String accountType;
     private boolean approved;
     private String image;
+    public String getToken() {
+		return token;
+	}
+
+	public void setToken(String token) {
+		this.token = token;
+	}
+
+	public String token;
 
     public String getFirstName() {
 		return firstName;
@@ -58,13 +67,14 @@ public class UserResponseDTO {
 	}
 
 	public UserResponseDTO(String firstName, String lastName, String email, 
-                           String accountType, boolean approved, String image) {
+                           String accountType, boolean approved, String image,String token) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.accountType = accountType;
         this.approved = approved;
         this.image = image;
+        this.token = token;
     }
 
 
