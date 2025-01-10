@@ -15,6 +15,7 @@ import com.v1.Notion.Model.User;
 import com.v1.Notion.Repository.OTPRepository;
 import com.v1.Notion.Repository.ProfileRepository;
 import com.v1.Notion.Repository.UserRepository;
+import com.v1.Notion.DTO.LoginRequest;
 import com.v1.Notion.DTO.SignUpRequest;
 import com.v1.Notion.DTO.UserResponseDTO;
 import com.v1.Notion.config.ApiResponse;
@@ -161,5 +162,39 @@ public class UserServiceImpl implements UserService {
             return new ApiResponse(false, "User not found.", null);
         }
     }
+
+	@Override
+	public ApiResponse login(LoginRequest loginRequest) {
+		String email = loginRequest.getEmail();
+		String password = loginRequest.getPassword();
+		if(email==null  || password == null) {
+			return new ApiResponse(false,"All fields required",null);
+		}
+		Optional<User> exisistingUser = userRepository.findByEmail(email);
+		if(!exisistingUser.isPresent()) {
+			return new ApiResponse(false,"Please register before login",null);
+		}
+		User user = exisistingUser.get();
+		if(!user.getPassword().equals(password)) {
+			return new ApiResponse(false,"Please enter correct password",null);
+		}
+		if (!user.getApproved()) {
+	        return new ApiResponse(false, "Account not approved. Please verify your email.", null);
+	    }
+		String jwtToken = jwtUtility.GenerateToken(user.getEmail());
+		user.setToken(jwtToken);
+		userRepository.save(user); 
+		
+		UserResponseDTO userResponseDTO = new UserResponseDTO(
+		        user.getFirstName(),
+		        user.getLastName(),
+		        user.getEmail(),
+		        user.getAccountType().toString(),
+		        user.getApproved(),
+		        user.getImage(),
+		        jwtToken
+		    );
+		return new ApiResponse(true, "Login successful.", userResponseDTO);
+	}
 
 }

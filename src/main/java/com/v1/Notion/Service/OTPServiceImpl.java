@@ -5,17 +5,21 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.liquibase.LiquibaseProperties.UiService;
+import org.springframework.boot.autoconfigure.security.SecurityProperties.User;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
-import com.v1.Notion.Model.OTP;
+import com.v1.Notion.Model.*;
 import com.v1.Notion.Repository.OTPRepository;
+import com.v1.Notion.Repository.UserRepository;
 
 import jakarta.mail.Authenticator;
 import jakarta.mail.Message;
@@ -30,6 +34,9 @@ import jakarta.mail.internet.MimeMessage;
 public class OTPServiceImpl implements OTPService{
 	@Autowired
 	private OTPRepository otpRepository;
+	
+	@Autowired
+	private UserRepository userRepository;
 	
 //	 @Value("${spring.mail.host}")
 //	    private String mailHost;
@@ -52,8 +59,14 @@ public class OTPServiceImpl implements OTPService{
 	@Override
 	public String sendOTP(String email) {
 		String otp = otpGenerate();
-		if(otpRepository.findEmail(email).isPresent()) {
-			throw new IllegalArgumentException("User already registered");
+		Optional<com.v1.Notion.Model.User> existingUser = userRepository.findByEmail(email);
+		if(existingUser.isPresent()) {
+			com.v1.Notion.Model.User user = existingUser.get();
+			if(user.getApproved()==false){
+				otp = otpGenerate();
+			}else {
+				throw new IllegalArgumentException("User already registered");
+			}
 		}
 		while(otpRepository.findOTP(otp).isPresent()) {
 			otp  = otpGenerate();

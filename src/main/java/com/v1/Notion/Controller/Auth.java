@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.v1.Notion.DTO.LoginRequest;
 import com.v1.Notion.DTO.SignUpRequest;
 import com.v1.Notion.Service.OTPService;
 import com.v1.Notion.Service.UserService;
@@ -66,6 +68,19 @@ public class Auth {
 			 ex.printStackTrace();
 	            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 	                    .body(new ApiResponse(false, "OTP is not verified. Please try again."));
+		}
+	}
+	
+	@PostMapping("/login")
+	public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest){
+		try {
+			ApiResponse response = userService.login(loginRequest);
+			return ResponseEntity.ok(response);
+		}catch(IllegalArgumentException ex) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse(false, ex.getMessage()));
+		}catch(Exception ex) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body(new ApiResponse(false, "User cannot login"));
 		}
 	}
 	
