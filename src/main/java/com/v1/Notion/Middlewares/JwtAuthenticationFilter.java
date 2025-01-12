@@ -25,7 +25,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String requestPath = request.getRequestURI();
         // Exclude certain paths from authentication
-        if (requestPath.contains("/signup") || requestPath.contains("/login") || requestPath.contains("/verifyOtp")) {
+        if (requestPath.contains("/signup") || requestPath.contains("/verifyOtp") || requestPath.contains("/sendOTP")) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -40,7 +40,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         // Extract token from header
-        String token = authHeader.substring(7); // Remove "Bearer " prefix
+        String token = authHeader.substring(7); //
 
         try {
             String email = jwtUtility.extractEmail(token);
