@@ -25,7 +25,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String requestPath = request.getRequestURI();
         // Exclude certain paths from authentication
-        if (requestPath.contains("/signup") || requestPath.contains("/verifyOtp") || requestPath.contains("/sendOTP")) {
+        if (requestPath.contains("/signup") || requestPath.contains("/verifyOtp") || requestPath.contains("/sendOTP") || requestPath.contains("/login")) {
             filterChain.doFilter(request, response);
             return;
         }
