@@ -28,6 +28,4 @@ public class TagsServiceImpl implements TagsService{
 		tagsRepository.save(tag);
 		return new ApiResponse(true,"Tags created successfully",true);
 	}
-	
-
 }
