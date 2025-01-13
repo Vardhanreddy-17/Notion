@@ -9,4 +9,5 @@ import com.v1.Notion.config.ApiResponse;
 
 public interface TagsService {
 	public ApiResponse createTag(TagsRequest tagsRequest);
+	public ApiResponse showAllCategories();
 }

@@ -1,5 +1,9 @@
 package com.v1.Notion.Service;
 
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -27,5 +31,13 @@ public class TagsServiceImpl implements TagsService{
 		
 		tagsRepository.save(tag);
 		return new ApiResponse(true,"Tags created successfully",true);
+	}
+	@Override
+	public ApiResponse showAllCategories() {
+		List<Tags> list = tagsRepository.findAll();
+		if(list.isEmpty()) {
+			return new ApiResponse(false,"No tags found",null);
+		}
+		return new ApiResponse(true,"Fetched all Tags",list);
 	}
 }
