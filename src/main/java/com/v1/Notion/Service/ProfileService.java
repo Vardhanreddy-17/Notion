@@ -7,4 +7,5 @@ import com.v1.Notion.config.ApiResponse;
 
 public interface ProfileService {
 	public ApiResponse updateProfile(UpdateProfile updateProfile,String email);
+	
 }
