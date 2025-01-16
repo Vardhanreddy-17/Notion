@@ -19,20 +19,19 @@ public class JwtUtility {
     private long jwtExpirationInMs;
     
     // Generate Token
-    public String GenerateToken(String email) {
-        // Use secretKey or generate a secure key
-        // Key key = new SecretKeySpec(secretKey.getBytes(), SignatureAlgorithm.HS512.getJcaName());  // Uncomment if using custom secret
-        
+ // Updated GenerateToken Method
+    public String GenerateToken(String email, String role) {
         Key key = Keys.secretKeyFor(SignatureAlgorithm.HS512);  // Generate secure key
-        
+
         return Jwts.builder()
                .setSubject(email)
+               .claim("role", role) // Add role claim
                .setIssuedAt(new Date())
                .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationInMs))
                .signWith(key)  // Use the generated secure key here
                .compact();
     }
-    
+
     // Validate Token
     public boolean validateToken(String token, String email) {
         String extractedEmail = extractEmail(token);
@@ -47,6 +46,15 @@ public class JwtUtility {
                 .getBody()
                 .getSubject();
     }
+ // Extract Role from Token
+    public String extractRole(String token) {
+        return Jwts.parser()
+                .setSigningKey(Keys.secretKeyFor(SignatureAlgorithm.HS512))  // Use the generated secure key here
+                .parseClaimsJws(token)
+                .getBody()
+                .get("role", String.class);
+    }
+
     
     // Check if Token is Expired
     public boolean isTokenExpired(String token) {

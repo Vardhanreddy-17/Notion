@@ -94,7 +94,7 @@ public class UserServiceImpl implements UserService {
         profile.setDateOfBirth(null);
         profileRepository.save(profile);
         
-        String jwtToken = jwtUtility.GenerateToken(email);
+        String jwtToken = jwtUtility.GenerateToken(email,accountTypeString);
         // Create a new user
         User user = new User();
         user.setFirstName(firstName);
@@ -154,7 +154,7 @@ public class UserServiceImpl implements UserService {
             userRepository.save(user); // Save the updated user details
 
             // Generate JWT token
-            String jwtToken = jwtUtility.GenerateToken(user.getEmail());
+            String jwtToken = jwtUtility.GenerateToken(user.getEmail(),String.valueOf(user.getAccountType()));
 
             // Prepare response with the token
             return new ApiResponse(true, "OTP verified successfully. Your account is now approved.", jwtToken);
@@ -181,7 +181,7 @@ public class UserServiceImpl implements UserService {
 		if (!user.getApproved()) {
 	        return new ApiResponse(false, "Account not approved. Please verify your email.", null);
 	    }
-		String jwtToken = jwtUtility.GenerateToken(user.getEmail());
+		String jwtToken = jwtUtility.GenerateToken(user.getEmail(),String.valueOf(user.getAccountType()));
 		user.setToken(jwtToken);
 		userRepository.save(user); 
 		
