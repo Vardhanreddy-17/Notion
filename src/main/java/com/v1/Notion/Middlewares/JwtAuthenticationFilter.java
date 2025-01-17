@@ -24,6 +24,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String requestPath = request.getRequestURI();
+
         // Exclude certain paths from authentication
         if (requestPath.contains("/signup") || requestPath.contains("/verifyOtp") || requestPath.contains("/sendOTP") || requestPath.contains("/login")) {
             filterChain.doFilter(request, response);
@@ -40,10 +41,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         // Extract token from header
-        String token = authHeader.substring(7); //
+        String token = authHeader.substring(7);
 
         try {
             String email = jwtUtility.extractEmail(token);
+            String role = jwtUtility.extractRole(token);
 
             // Validate token
             if (!jwtUtility.validateToken(token, email)) {
@@ -52,11 +54,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 return;
             }
 
+            // Role-based access control
+            if (requestPath.contains("/profile/updateProfile")) {
+                if (!role.equals("Student") && !role.equals("Instructor")) {
+                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                    response.getWriter().write("Access denied: Insufficient permissions");
+                    return;
+                }
+            }
+
+            // Token and role are valid, proceed with the request
             filterChain.doFilter(request, response);
         } catch (Exception ex) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write("Unauthorized: " + ex.getMessage());
         }
     }
+
     
 }

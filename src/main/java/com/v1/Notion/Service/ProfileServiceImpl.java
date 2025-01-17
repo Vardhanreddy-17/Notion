@@ -10,6 +10,7 @@ import com.v1.Notion.Model.Profile;
 import com.v1.Notion.Model.User;
 import com.v1.Notion.Repository.ProfileRepository;
 import com.v1.Notion.Repository.UserRepository;
+import com.v1.Notion.Utility.JwtUtility;
 import com.v1.Notion.config.ApiResponse;
 
 public class ProfileServiceImpl implements ProfileService{
@@ -17,8 +18,16 @@ public class ProfileServiceImpl implements ProfileService{
 	private UserRepository userRepository;
 	@Autowired
 	private ProfileRepository profileRepository;
+	@Autowired
+    private JwtUtility jwtUtility;
 	@Override
-	public ApiResponse updateProfile(UpdateProfile updateProfile,String email) {
+	public ApiResponse updateProfile(UpdateProfile updateProfile,String token) {
+		String email;
+		try {
+			email = jwtUtility.extractEmail(token);
+	    } catch (Exception e) {
+	        return new ApiResponse(false, "Invalid or expired token.", null);
+	    }
 		Optional<User> optionalUser = userRepository.findByEmail(email);
 		if (!optionalUser.isPresent()) {
 		    return new ApiResponse(false,"User not found");

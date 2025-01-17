@@ -38,7 +38,7 @@ public class JwtUtility {
         return (extractedEmail.equals(email) && !isTokenExpired(token));
     }
     
-    // Extract Email from Token
+    // Extract Email 
     public String extractEmail(String token) {
         return Jwts.parser()
                 .setSigningKey(Keys.secretKeyFor(SignatureAlgorithm.HS512))  // Use the generated secure key here
