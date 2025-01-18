@@ -56,7 +56,7 @@ public class JwtUtility {
     }
 
     
-    // Check if Token is Expired
+    // Check if Token Expired
     public boolean isTokenExpired(String token) {
         Date expiration = Jwts.parser()
                 .setSigningKey(Keys.secretKeyFor(SignatureAlgorithm.HS512))  // Use the generated secure key here
