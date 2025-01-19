@@ -46,7 +46,6 @@ public class JwtUtility {
                 .getBody()
                 .getSubject();
     }
- // Extract Role from Token
     public String extractRole(String token) {
         return Jwts.parser()
                 .setSigningKey(Keys.secretKeyFor(SignatureAlgorithm.HS512))  // Use the generated secure key here
